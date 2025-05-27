@@ -1,0 +1,49 @@
+Stuktur penyimpanan file dan folder
+
+folder Projek_Sisdat {
+    folder adminpanel {
+        folder image {
+            
+        }
+        edit_game.php
+        index.php
+        tambah_game.php
+        view_game.php
+    }
+
+    folder bootstrap {
+        folder css {
+
+        }
+        folder js {
+
+        }
+    }
+
+    folder css {
+        style.css
+    }
+
+    folder fontawesome {
+
+    }
+
+    folder js {
+        script.js
+    }
+
+    folder userpanel {
+        buy_game.php
+        index.php
+        view_game.php
+    }
+
+    create-account.php
+    database.sql
+    functions.php
+    koneksi.php
+    login.php
+    logout.php
+    notes.txt
+    session.php
+}
