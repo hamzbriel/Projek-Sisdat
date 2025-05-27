@@ -1,0 +1,101 @@
+ // tambah_game.php
+ // (() => {
+        //     'use strict';
+        //     form.addEventListener('submit', event => {
+        //         event.preventDefault();
+        //         event.stopPropagation();
+
+        //         const genresElements = form.elements['genres'];
+        //         let anyGenreChecked = false;
+
+        //         if (!genresElements) {
+        //             anyGenreChecked = false;
+        //         } else if (genresElements.length === undefined) {
+        //             anyGenreChecked = genresElements.checked;
+        //         } else {
+        //             anyGenreChecked = Array.from(genresElements).some(chk => chk.checked);
+        //         }
+
+        //         if (!anyGenreChecked) {
+        //             alert('Harap pilih minimal satu genre.');
+        //             return;
+        //         }
+
+        //         if (form.checkValidity()) {
+        //             const formData = new FormData(form);
+        //             const data = {
+        //                 gameName: formData.get('gameName'),
+        //                 genres: formData.getAll('genres'),
+        //                 price: formData.get('price'),
+        //                 productImage: formData.get('productImage')?.name || ''
+        //             };
+        //             alert('Produk berhasil disubmit:\n' + JSON.stringify(data, null, 2));
+        //             form.classList.remove('was-validated');
+        //             form.reset();
+        //             imagePreview.style.display = 'none';
+        //             imagePreview.src = '';
+        //         } else {
+        //             form.classList.add('was-validated');
+        //         }
+        //     }, false);
+        // })();
+
+
+
+// admin/index.php
+<!-- Item 2 -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card-item">
+                    <img src="image/haste_edit.jpg" alt="Item Two" />
+                    <div class="card-body-item">
+                        <div class="item-name">Item Two</div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm btn-action" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-warning btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger btn-sm btn-action" title="Delete" onclick="confirmDelete('Item Two')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Item 3 -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card-item">
+                    <img src="image/onward_edit.jpg" alt="Item Three" />
+                    <div class="card-body-item">
+                        <div class="item-name">Item Three</div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm btn-action" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-warning btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger btn-sm btn-action" title="Delete" onclick="confirmDelete('Item Three')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Item 4 -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card-item">
+                    <img src="https://via.placeholder.com/300x150?text=Item+Three" alt="Item Three" />
+                    <div class="card-body-item">
+                        <div class="item-name">Item Three</div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm btn-action" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-warning btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger btn-sm btn-action" title="Delete" onclick="confirmDelete('Item Three')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Item 5 -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card-item">
+                    <img src="https://via.placeholder.com/300x150?text=Item+Three" alt="Item Three" />
+                    <div class="card-body-item">
+                        <div class="item-name">Item Three</div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm btn-action" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-warning btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger btn-sm btn-action" title="Delete" onclick="confirmDelete('Item Three')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
