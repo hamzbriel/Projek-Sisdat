@@ -1,24 +1,42 @@
-// view_game untuk admin (di file 'adminpanel')
-
 <?php 
-
+session_start();
 require '../functions.php';
 
-$id = $_GET["id"];
+// menghapus game
+if (isset($_POST['game_id'])) {
+    $game_id = $_POST['game_id'];
+
+    Hapus($game_id);
+    // var_dump($game_id);
+    // Lakukan query untuk menghapus game dari database
+    // Query("DELETE FROM games WHERE game_id = '$game_id'");
+    // Redirect atau refresh halaman setelah penghapusan
+    header("Location: index.php");
+    exit();
+}
+
+$id = $_GET["id"]; // game_id
 
 $game = Query("SELECT * FROM games WHERE game_id=$id")[0];
 $developer_id = $game["developer_id"];
 $developer = Query("SELECT * FROM developers WHERE developer_id='$developer_id'")[0];
 $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
 // var_dump($genres);
+$list_game_terbeli = Query("SELECT game_id FROM pembelian");
+$game_id_terbeli = [];
+foreach($list_game_terbeli as $list){
+    $game_id_terbeli[] = $list["game_id"];
+}
 
+var_dump($game_id_terbeli);
 ?>
 
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pengelola Barang - Admin Panel</title>
+    <title>View Game - Admin Panel</title>
+    <link rel="icon" href="../image/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
@@ -149,7 +167,10 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Gameery</a>
+        <a class="navbar-brand" href="#">
+            <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            Gameery
+        </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -157,13 +178,13 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="manage_games.html">Manage Game</a>
+                        <a class="nav-link" href="index.php">Manage Game</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="game_terjual.html">Game Terjual</a>
+                        <a class="nav-link" href="game_terjual.php">Game Terjual</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-danger" href="logout.php">Logout</a>
+                        <a class="btn btn-danger" href="../logout.php">Logout</a>
                     </li>
                 </ul>
             </div>
@@ -214,13 +235,105 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
             </button>
             <a href="index.php" class="btn btn-outline-primary btn-sm btn-action"><i class="fas fa-arrow-left"></i> Back</a> -->
             <a class="btn btn-primary" href="index.php"><i class="fas fa-arrow-left"></i> Back</a>
-            <a class="btn btn-warning btn-edit" href="logout.php"><i class="fas fa-edit"></i> Edit</a>
-            <a class="btn btn-danger" href="logout.php"><i class="fas fa-trash-alt"></i> Delete</a>
+            <a class="btn btn-warning btn-edit" href="edit_game.php?id=<?php echo $id; ?>"><i class="fas fa-edit"></i> Edit</a>
+            <?php if(in_array($id, $game_id_terbeli,true)): ?>
+                <button class="btn btn-danger btn-sm btn-action" title="Delete"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal2"
+                    data-game-id="<?php $id ?>"
+                    data-game-name="<?php echo htmlspecialchars($game['nama_game']); ?>">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            <?php else:?>
+                <button class="btn btn-danger btn-sm btn-action" title="Delete"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                    data-game-id="<?php echo $id; ?>"
+                    data-game-name="<?php echo htmlspecialchars($game['nama_game']); ?>">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            <?php endif;?>
+            <!-- <a class="btn btn-danger" href="logout.php"><i class="fas fa-trash-alt"></i> Delete</a> -->
             <!-- <button class="btn-custom btn-edit" type="button">
                 <i class="fas fa-edit"></i> Edit
             </button> -->
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal (untuk game yang bisa dihapus) -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel" style="color:black;">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <img src="../image/delete3.png" alt="">
+                    </center>
+                    <br>
+                    <p style="color:black;">Apakah Anda yakin ingin menghapus game "<span id="gameNameToDelete"></span>"?</p>
+                    <p class="text-danger">Data yang dihapus tidak dapat dikembalikan!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" action="index.php" method="POST" style="display: inline;">
+                    <input type="hidden" name="game_id" id="gameIdToDelete" value="gameIdToDelete">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete  (untuk game yang tidak bisa dihapus) -->
+      <div class="modal fade" id="deleteModal2" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel" style="color:black;">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <img src="../image/sad_emoji2.png" alt="">
+                    </center>
+                    <br>
+                    <p style="color:black;">Maaf anda tidak dapat menghapus game "<span id="gameNameToDelete2"></span>"!</p>
+                    <p class="text-danger">Game tersebut sudah terbeli, lakukan refund terlebih dahulu! </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Konfirmasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                var gameId = button.getAttribute('data-game-id');
+                var gameName = button.getAttribute('data-game-name');
+        // &nbsp;
+        // &nbsp;
+                // Update the modal content
+                document.getElementById('gameNameToDelete').textContent = gameName;
+                document.getElementById('gameIdToDelete').value = gameId; // Set the hidden input value
+            });
+        })
+
+        document.addEventListener('DOMContentLoaded', function() {
+                    var deleteModal = document.getElementById('deleteModal2');
+                    deleteModal.addEventListener('show.bs.modal', function(event) {
+                        var button = event.relatedTarget; // Button that triggered the modal
+                        var gameId = button.getAttribute('data-game-id');
+                        var gameName = button.getAttribute('data-game-name');
+                
+                        // Update the modal content
+                        document.getElementById('gameNameToDelete2').textContent = gameName;
+            });
+        })
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>

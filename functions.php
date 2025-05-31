@@ -145,12 +145,17 @@ function Edit($data, $data_session){
     return mysqli_affected_rows($con);
 }
 
-function PurchaseGame($userId, $gameId) {
+function Hapus($data){
     global $con;
-    // Insert purchase record into the purchases table
-    $query = "INSERT INTO purchases (user_id, game_id, purchase_date) VALUES ('$userId', '$gameId', NOW())";
+
+    // menghapus game dari tabel genre
+    $deleteGameFromGen = "DELETE FROM genres WHERE game_id ='$data'";
+    mysqli_query($con, $deleteGameFromGen);
+    
+    // menghapus game dari tabel games
+    $query = "DELETE FROM games WHERE game_id ='$data'";
     mysqli_query($con, $query);
-    return mysqli_affected_rows($con);
+
 }
 
 ?>

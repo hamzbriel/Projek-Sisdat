@@ -1,7 +1,5 @@
-// view_game untuk user (di file 'userpanel')
-
 <?php
-
+session_start();
 require '../functions.php';
 
 $id = $_GET['id'];
@@ -10,7 +8,11 @@ $game = Query("SELECT * FROM games WHERE game_id=$id")[0];
 $developer_id = $game["developer_id"];
 $developer = Query("SELECT * FROM developers WHERE developer_id='$developer_id'")[0];
 $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
-// var_dump($genres);
+$username_user = $_SESSION["usernameUser"];
+$id_user = Query("SELECT * FROM users WHERE username = '$username_user'")[0]['user_id'];
+$cek_game = Query("SELECT * FROM pembelian WHERE game_id = '$id' AND user_id = '$id_user'");
+$game_sudah_dibeli = count($cek_game) > 0;
+
 
 ?>
 
@@ -19,7 +21,8 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pengelola Barang - Admin Panel</title>
+    <title>View Game - User Panel</title>
+    <link rel="icon" href="../image/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
@@ -28,7 +31,6 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
             color: #eee;
             margin: 0;
             padding-top: 56px;
-            /* height of navbar */
             min-height: 100vh;
         }
 
@@ -36,7 +38,6 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
             color: #000;
         }
 
-        /* Navbar solid background #162f65 */
         .navbar-custom {
             background-color: #162f65 !important;
         }
@@ -62,7 +63,6 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
 
         .image-container {
             width: 480px;
-            /* medium size */
             aspect-ratio: 2 / 1;
             overflow: hidden;
             border-radius: 8px;
@@ -71,20 +71,17 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
         .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
         .details-container {
-            /* background-color: #2a3b52; */
-            /* border: 1px solid #4a6a8c; */
             border-radius: 8px;
             padding: 1rem;
             color: #a1b0c2;
             max-width: 500px;
             font-size: 0.9rem;
             height: 240px;
-            /* same height as image container */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -164,13 +161,23 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
             color: rgb(0, 0, 0);
             font-weight: 600;
         }
+
+        #buyGameModal .modal-game-image {
+            max-height: 400px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
     </style>
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Gameery</a>
+        <a class="navbar-brand" href="#">
+            <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            Gameery
+        </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -181,7 +188,7 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
                         <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="game_terjual.html">Game Terjual</a>
+                        <a class="nav-link" href="game_terjual.php">Game Terjual</a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-danger" href="logout.php">Logout</a>
@@ -230,21 +237,136 @@ $genres = Query("SELECT genre FROM genres WHERE game_id=$id");
         </p>
 
         <div class="btn-group-bottom">
-            <!-- <button class="btn-custom btn-back" type="button">
-                <i class="fas fa-arrow-left"></i> Back
-            </button>
-            <a href="index.php" class="btn btn-outline-primary btn-sm btn-action"><i class="fas fa-arrow-left"></i> Back</a> -->
             <a class="btn btn-primary" href="index.php"><i class="fas fa-arrow-left"></i> Back</a>
-            <a class="btn btn-success" href="buy_game.php?id=<?php echo $game['game_id']; ?>">Buy <i class="fas fa-cart-shopping"></i></a>
-            <!-- <a href="#" class="btn btn-outline-success btn-sm btn-success btn-action" target="_blank">Buy<i class="fas fa-cart-shopping"></i></a> -->
-            <!-- <button class="btn-custom btn-edit" type="button">
-                <i class="fas fa-edit"></i> Edit
-            </button> -->
+            <a href="#"
+                class="btn <?= $game_sudah_dibeli ? 'btn-warning btn-download' : 'btn-success btn-buy' ?>"
+                data-game-id="<?= $game['game_id'] ?>"
+                data-game-name="<?= $game['nama_game'] ?>"
+                data-game-image="../image/<?= $game['gambar'] ?>"
+                data-game-price="<?= number_format($game['harga'], 0, ',', '.') ?>"
+                data-game-developer="<?= $developer['nama_developer'] ?>"
+                data-game-genres="<?php
+                                    $g_list = [];
+                                    foreach ($genres as $g) {
+                                        $g_list[] = $g['genre'];
+                                    }
+                                    echo implode(', ', $g_list);
+                                    ?>"
+                data-game-deskripsi="<?= $game['deskripsi'] ?>">
+                <i class="fas <?= $game_sudah_dibeli ? 'fa-download' : 'fa-shopping-cart' ?>"></i>
+                <?= $game_sudah_dibeli ? 'Download' : 'Buy' ?>
+            </a>
         </div>
     </div>
 
+    <!-- Modal Beli Game  Start -->
+    <div class="modal fade" id="buyGameModal" tabindex="-1" aria-labelledby="buyGameModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background-color: #555; color: #fff;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buyGameModalLabel">Detail Game</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-column align-items-center" style="gap: 1rem;">
+                        <img id="modalGameImage" src="" class="img-fluid" style="max-height: 300px; object-fit: contain;">
+                        <h3 id="modalGameName"></h3>
+                        <p style="font-weight: bold;">Price: Rp <span id="modalPrice"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success" id="btnConfirmBuy"><i class="fas fa-shopping-cart"></i> Buy Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Beli Game  End -->
+
+    <!-- Refresh Halaman -->
+    <div id="customAlert" style="
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 9999;
+    text-align: center;
+    white-space: pre-line;">
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        // Simpan referensi ke tombol
+        const btnConfirm = document.getElementById('btnConfirmBuy');
+
+        document.querySelectorAll('.btn-buy').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const gameId = this.dataset.gameId;
+                const gameName = this.dataset.gameName;
+                const gameImage = this.dataset.gameImage;
+                const gamePrice = this.dataset.gamePrice;
+
+                // Isi data di modal
+                document.getElementById('modalGameImage').src = gameImage;
+                document.getElementById('modalGameName').textContent = gameName;
+                document.getElementById('modalPrice').textContent = gamePrice;
+
+                // Update href atau data lain jika perlu
+                // (Kalau nanti ingin beli otomatis, bisa diatur di sini)
+
+                // Tampilkan modal
+                var myModal = new bootstrap.Modal(document.getElementById('buyGameModal'));
+                myModal.show();
+            });
+        });
+
+        // Tambahkan event listener sekali saja di luar, di halaman
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', function() {
+                alert('Pembelian game berhasil');
+
+                // Tutup modal
+                var myModalEl = document.getElementById('buyGameModal');
+                var modalInstance = bootstrap.Modal.getInstance(myModalEl);
+                modalInstance.hide();
+            });
+        }
+
+        document.querySelectorAll('.btn-download').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const gameName = this.dataset.gameName;
+
+                const alertBox = document.getElementById('customAlert');
+
+                // Tampilkan pesan pertama
+                alertBox.textContent = `Memulai download game: ${gameName}\nSilakan tunggu...`;
+                alertBox.style.display = 'block';
+
+                // Setelah 2 detik, ganti ke pesan sukses
+                setTimeout(() => {
+                    alertBox.textContent = `Game berhasil didownload!`;
+                }, 2000);
+
+                // Setelah total 3 detik, sembunyikan dan redirect
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                    window.location.href = 'index.php'; // atau gunakan location.reload();
+                }, 3000);
+            });
+        });
+    </script>
 </body>
 
 </html>

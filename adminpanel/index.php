@@ -1,14 +1,55 @@
-// index untuk admin (di file 'adminpanel')
-
 <?php
 session_start();
 // var_dump($_SESSION);
 
 require '../functions.php';
+
+// Ambil semua genre yang tersedia untuk filter
+$genres = Query("SELECT DISTINCT genre FROM genres");
+// Handle search dan filter
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$genre_filter = isset($_GET['genre']) ? $_GET['genre'] : '';
+
+// menghapus game
+if (isset($_POST['game_id'])) {
+    $game_id = $_POST['game_id'];
+
+    Hapus($game_id);
+    // var_dump($game_id);
+    // Lakukan query untuk menghapus game dari database
+    // Query("DELETE FROM games WHERE game_id = '$game_id'");
+    // Redirect atau refresh halaman setelah penghapusan
+    header("Location: index.php");
+    exit();
+}
+
 $username_developer = $_SESSION["usernameAdmin"];
 
-$games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_id) WHERE developers.username = '$username_developer' ");
-// var_dump($games);
+$query = "SELECT games.* FROM games INNER JOIN developers USING(developer_id) WHERE developers.username = '$username_developer' ";
+if (!empty($search)) {
+    $query .= " AND games.nama_game LIKE '%$search%'";
+}
+if (!empty($genre_filter)) {
+    $query .= " AND games.game_id IN (SELECT game_id FROM genres WHERE genre = '$genre_filter')";
+}
+
+$games = Query($query);
+// nama developer
+$nama_developer = Query("SELECT nama_developer FROM developers WHERE username='$username_developer'")[0]["nama_developer"];
+// var_dump($nama_developer);
+
+// id developer 
+$developer_id = Query("SELECT developer_id FROM developers WHERE username = '$username_developer';")[0]["developer_id"];
+
+// mendata game yang sudah terbeli
+$list_game_terbeli = Query("SELECT pembelian.game_id FROM pembelian INNER JOIN games USING(game_id) WHERE games.developer_id = '$developer_id' ");
+$game_id_terbeli = [];
+foreach($list_game_terbeli as $list){
+    $game_id_terbeli[] = $list["game_id"];
+}
+
+// var_dump($game_id_terbeli);
+
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +57,8 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pengelola Barang - Admin Panel</title>
+    <title>Manage Game - Admin Panel</title>
+    <link rel="icon" href="../image/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
@@ -98,17 +140,51 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
             color: #fff;
             text-decoration: none;
         }
-            .welcome-text {
+        .welcome-text {
             color: #0b2361; /* dark blue */
             font-weight: 700;
             font-size: 2rem;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #ced4da;
+            outline: none;
+        }
+        .filter-select {
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            cursor: pointer;
+        }
+        .search-button {
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #162f65;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-button:hover {
+            background-color: #1a3a7a;
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#">Gameery</a>
+        <a class="navbar-brand" href="#">
+            <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            Gameery
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
           aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -116,13 +192,13 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="manage_games.html">Manage Game</a>
+              <a class="nav-link" href="#">Manage Game</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="game_terjual.html">Game Terjual</a>
+              <a class="nav-link" href="game_terjual.php">Game Terjual</a>
             </li>
             <li class="nav-item">
-              <a class="btn btn-danger" href="logout.php">Logout</a>
+              <a class="btn btn-danger" href="../logout.php">Logout</a>
             </li>
           </ul>
         </div>
@@ -131,9 +207,26 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
 
     <div class="container container-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="welcome-text">Selamat datang Admin! </h2> 
+            <h2 class="welcome-text">Selamat datang <?= $nama_developer?>! </h2> 
             <a href="tambah_game.php" class="btn btn-add">Tambah Data</a>
         </div>
+
+        <!-- Search dan Filter Section -->
+        <form method="GET" action="">
+            <div class="search-container">
+                <input type="text" name="search" class="search-input" placeholder="Search game..." value="<?php echo htmlspecialchars($search); ?>" autocomplete="off">
+                <select name="genre" class="filter-select">
+                    <option value="">All Genres</option>
+                    <?php foreach ($genres as $genre): ?>
+                        <option value="<?php echo $genre['genre']; ?>" <?php echo ($genre_filter == $genre['genre']) ? 'selected' : ''; ?>>
+                            <?php echo $genre['genre']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="search-button">Search</button>
+            </div>
+        </form>
+
         <div class="row g-4">
             <?php if(empty($games)): ?>
                 <div class="col-12 text-center py-5">
@@ -149,13 +242,27 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
                         <div class="card-body-item">
                             <div class="item-name"><?php echo $row["nama_game"]; ?></div>
                             <div>
-                                <a href="view_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-primary btn-sm btn-action" title="View" target="_blank">
+                                <a href="view_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-primary btn-sm btn-action" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="edit_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-warning btn-sm btn-action" title="Edit" target="_blank">
+                                <a href="edit_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-warning btn-sm btn-action" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button class="btn btn-outline-danger btn-sm btn-action" title="Delete" onclick="confirmDelete('Item One')"><i class="fas fa-trash-alt"></i></button>
+                                <?php if(in_array($row["game_id"], $game_id_terbeli,true)): ?>
+                                    <button class="btn btn-outline-danger btn-sm btn-action" title="Delete"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal2"
+                                        data-game-id="<?php echo $row['game_id']; ?>"
+                                        data-game-name="<?php echo htmlspecialchars($row['nama_game']); ?>">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                <?php else:?>
+                                    <button class="btn btn-outline-danger btn-sm btn-action" title="Delete"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        data-game-id="<?php echo $row['game_id']; ?>"
+                                        data-game-name="<?php echo htmlspecialchars($row['nama_game']); ?>">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                <?php endif;?>
                             </div>
                         </div>
                     </div>
@@ -166,14 +273,104 @@ $games = Query("SELECT games.* FROM games INNER JOIN developers USING(developer_
             
         </div>
     </div>
+    <!-- Delete Confirmation Modal (untuk game yang bisa dihapus) -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel" style="color:black;">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <img src="../image/delete3.png" alt="">
+                    </center>
+                    <br>
+                    <p style="color:black;">Apakah Anda yakin ingin menghapus game "<span id="gameNameToDelete"></span>"?</p>
+                    <p class="text-danger">Data yang dihapus tidak dapat dikembalikan!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" action="index.php" method="POST" style="display: inline;">
+                    <input type="hidden" name="game_id" id="gameIdToDelete" value="gameIdToDelete">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete  (untuk game yang tidak bisa dihapus) -->
+      <div class="modal fade" id="deleteModal2" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel" style="color:black;">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <img src="../image/sad_emoji2.png" alt="">
+                    </center>
+                    <br>
+                    <p style="color:black;">Maaf anda tidak dapat menghapus game "<span id="gameNameToDelete2"></span>"!</p>
+                    <p class="text-danger">Game tersebut sudah terbeli, lakukan refund terlebih dahulu! </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Konfirmasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function confirmDelete(itemName) {
-            if (confirm('Yakin ingin menghapus "' + itemName + '"?')) {
-                // Implement delete action here
-                alert('Deleted item: ' + itemName);
-            }
-        }
+        
+        // Initialize the modal with game data when delete button is clicked
+        //#1
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     var deleteModal = document.getElementById('deleteModal');
+        //     deleteModal.addEventListener('show.bs.modal', function(event) {
+        //         var button = event.relatedTarget; // Button that triggered the modal
+        //         var gameId = button.getAttribute('data-game-id');
+        //         var gameName = button.getAttribute('data-game-name');
+                
+        //         // Update the modal content
+        //         document.getElementById('gameNameToDelete').textContent = gameName;
+                
+        //         // Set the delete link with the correct ID
+        //         var deleteButton = document.getElementById('confirmDeleteButton');
+        //         deleteButton.href = 'hapus_game.php?id=' + gameId;
+        //     });
+        // });
+
+        //#2
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                var gameId = button.getAttribute('data-game-id');
+                var gameName = button.getAttribute('data-game-name');
+        // &nbsp;
+        // &nbsp;
+                // Update the modal content
+                document.getElementById('gameNameToDelete').textContent = gameName;
+                document.getElementById('gameIdToDelete').value = gameId; // Set the hidden input value
+            });
+        })
+
+        document.addEventListener('DOMContentLoaded', function() {
+                    var deleteModal = document.getElementById('deleteModal2');
+                    deleteModal.addEventListener('show.bs.modal', function(event) {
+                        var button = event.relatedTarget; // Button that triggered the modal
+                        var gameId = button.getAttribute('data-game-id');
+                        var gameName = button.getAttribute('data-game-name');
+                
+                        // Update the modal content
+                        document.getElementById('gameNameToDelete2').textContent = gameName;
+            });
+        })
+
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

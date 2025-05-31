@@ -1,5 +1,3 @@
-// tambah_game untuk admin (di file 'adminpanel')
-
 <?php 
 session_start();
 // var_dump($_SESSION);
@@ -40,6 +38,7 @@ if(isset($_POST["submit"])){
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Input Produk Game</title>
+    <link rel="icon" href="../image/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body {

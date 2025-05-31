@@ -17,28 +17,23 @@ $genres = Query("SELECT DISTINCT genre FROM genres");
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $genre_filter = isset($_GET['genre']) ? $_GET['genre'] : '';
 
-// Query dengan filter
-$query = "SELECT * FROM games ";
+// Query untuk mengambil game yang sudah dibeli
+$query = "SELECT g.* FROM games g 
+          JOIN pembelian p ON g.game_id = p.game_id
+          WHERE p.user_id = '$dataUser[user_id]'";
+
 if (!empty($genre_filter)) {
-    $query .= " JOIN genres ON games.game_id = genres.game_id";
+    $query .= " JOIN genres gr ON g.game_id = gr.game_id";
 }
 
-$query .= " WHERE 1=1";
 if (!empty($search)) {
-    $query .= " AND games.nama_game LIKE '%$search%'";
+    $query .= " AND g.nama_game LIKE '%$search%'";
 }
 if (!empty($genre_filter)) {
-    $query .= " AND genres.genre = '$genre_filter'";
+    $query .= " AND gr.genre = '$genre_filter'";
 }
 
 $games = Query($query);
-
-$pembelianData = Query("SELECT game_id FROM pembelian WHERE user_id = '$dataUser[user_id]'");
-
-$game_dibeli = [];
-foreach ($pembelianData as $pembelian) {
-    $game_dibeli[] = $pembelian['game_id'];
-}
 ?>
 
 <!DOCTYPE html>
@@ -47,11 +42,12 @@ foreach ($pembelianData as $pembelian) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gameery - Home</title>
+    <title>Gameery - Library Game</title>
     <link rel="icon" href="../image/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/style.css">
+
     <style>
         body {
             background: linear-gradient(180deg, #f0f5ff 0%, #162f65 100%);
@@ -222,7 +218,7 @@ foreach ($pembelianData as $pembelian) {
                         <a class="nav-link" href="index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="game_terjual.php">Library Game</a>
+                        <a class="nav-link me-2 active" href="game_terjual.php">Library Game</a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-danger" href="../logout.php">Logout</a>
@@ -256,40 +252,25 @@ foreach ($pembelianData as $pembelian) {
         <div class="row g-4">
             <?php if (empty($games)): ?>
                 <div class="col-12 text-center py-5">
-                    <h4 class="text-muted">Belum ada game yang ditambahkan</h4>
+                    <h4 class="text-muted">Belum ada game di library Anda</h4>
                 </div>
             <?php else: ?>
                 <!-- Data Game Start -->
                 <?php foreach ($games as $row) : ?>
                     <div class="col-md-4 col-sm-6">
                         <div class="card-item">
-                            <img src="../image/<?php echo $row["gambar"]; ?>" alt="Item One" />
+                            <img src="../image/<?php echo $row["gambar"]; ?>" alt="<?php echo $row["nama_game"]; ?>" />
                             <div class="card-body-item">
                                 <div class="item-name"><?php echo $row["nama_game"]; ?></div>
                                 <div>
                                     <a href="view_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-primary btn-sm btn-action"><i class="fas fa-eye"></i></a>
-                                    <?php if (in_array($row['game_id'], $game_dibeli)): ?>
-                                        <!-- Tombol Download -->
-                                        <button class="btn btn-outline-info btn-sm btn-action download-btn"
-                                            title="Download Game"
-                                            data-game-id="<?php echo $row['game_id']; ?>"
-                                            data-game-name="<?php echo $row['nama_game']; ?>">
-                                            <i class="fa-solid fa-download"></i>
-                                        </button>
-                                    <?php else: ?>
-                                        <!-- Tombol Beli -->
-                                        <a href="#"
-                                            class="btn btn-outline-success btn-sm btn-action buy-btn"
-                                            title="Beli Game"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#buyModal"
-                                            data-game-id="<?php echo $row['game_id']; ?>"
-                                            data-game-name="<?php echo $row['nama_game']; ?>"
-                                            data-game-price="<?php echo number_format($row['harga'], 0, ',', '.'); ?>"
-                                            data-game-image="<?php echo $row['gambar']; ?>">
-                                            <i class="fas fa-cart-shopping"></i>
-                                        </a>
-                                    <?php endif; ?>
+                                    <!-- Tombol Download (selalu tampil karena ini library game yang sudah dibeli) -->
+                                    <button class="btn btn-outline-info btn-sm btn-action download-btn"
+                                        title="Download Game"
+                                        data-game-id="<?php echo $row['game_id']; ?>"
+                                        data-game-name="<?php echo $row['nama_game']; ?>">
+                                        <i class="fa-solid fa-download"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -300,29 +281,6 @@ foreach ($pembelianData as $pembelian) {
         </div>
     </div>
 
-    <!-- Modal Start -->
-    <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: #555; color: #fff;">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="buyModalLabel">Anda ingin membeli game ini?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div style="background-color: #888; padding: 10px; border-radius: 8px; display: inline-block;">
-                        <img src="" id="modalGameImage" class="image-game-modal" alt="Game">
-                        <h5 class="mt-3" id="modalGameName">Game Name</h5>
-                        <p><strong>Price:</strong> Rp <span id="modalGamePrice">99.999,99</span></p>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="confirmBuy">Buy</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal End -->
     <!-- Alert download -->
     <div id="customAlert" style="
     display: none;
@@ -345,24 +303,6 @@ foreach ($pembelianData as $pembelian) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi variabel untuk modal pembelian
-            const buyModal = new bootstrap.Modal(document.getElementById('buyModal'));
-            const modalGameImage = document.getElementById('modalGameImage');
-            const modalGameName = document.getElementById('modalGameName');
-            const modalGamePrice = document.getElementById('modalGamePrice');
-            const confirmBuyBtn = document.getElementById('confirmBuy');
-            const userId = <?php echo $dataUser['user_id']; ?>;
-
-            // Handle tombol beli (munculkan modal)
-            document.querySelectorAll('.buy-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    modalGameImage.src = '../image/' + this.getAttribute('data-game-image');
-                    modalGameName.textContent = this.getAttribute('data-game-name');
-                    modalGamePrice.textContent = this.getAttribute('data-game-price');
-                    confirmBuyBtn.setAttribute('data-game-id', this.getAttribute('data-game-id'));
-                });
-            });
-
             // Handle tombol download (dengan pop-up animasi & auto refresh)
             document.querySelectorAll('.download-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -381,45 +321,9 @@ foreach ($pembelianData as $pembelian) {
                     // Setelah total 3 detik, sembunyikan dan reload halaman
                     setTimeout(() => {
                         alertBox.style.display = 'none';
-                        window.location.reload(); // Atau: location.href = 'index.php';
+                        window.location.reload();
                     }, 3000);
                 });
-            });
-
-            // Proses pembelian (tetap sama)
-            confirmBuyBtn.addEventListener('click', function() {
-                const gameId = this.getAttribute('data-game-id');
-                const btn = this;
-
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
-                btn.disabled = true;
-
-                fetch('buy_game.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `game_id=${gameId}&user_id=${userId}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('Pembelian berhasil! Halaman akan direfresh...');
-                            window.location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat memproses pembelian');
-                    })
-                    .finally(() => {
-                        if (data.status !== 'success') {
-                            btn.innerHTML = 'Buy';
-                            btn.disabled = false;
-                        }
-                    });
             });
         });
     </script>
