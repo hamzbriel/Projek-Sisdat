@@ -48,7 +48,7 @@ foreach ($pembelianData as $pembelian) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gameery - Home</title>
-    <link rel="icon" href="../image/logo.png" type="image/png">
+    <link rel="icon" href="../assets/icons/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/style.css">
@@ -103,8 +103,8 @@ foreach ($pembelianData as $pembelian) {
 
         .card-item img {
             width: 100%;
-            height: 100%;
-            object-fit: contain;
+            height: 150px;
+            object-fit: cover;
             display: block;
         }
 
@@ -209,7 +209,7 @@ foreach ($pembelianData as $pembelian) {
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <h1 class="navbar-brand d-flex align-items-center">
-                <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                <img src="../assets/icons/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
                 Gameery
             </h1>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
@@ -222,7 +222,7 @@ foreach ($pembelianData as $pembelian) {
                         <a class="nav-link" href="index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="game_terjual.php">Library Game</a>
+                        <a class="nav-link me-2" href="library_game.php">Library Game</a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-danger" href="../logout.php">Logout</a>
@@ -263,7 +263,7 @@ foreach ($pembelianData as $pembelian) {
                 <?php foreach ($games as $row) : ?>
                     <div class="col-md-4 col-sm-6">
                         <div class="card-item">
-                            <img src="../image/<?php echo $row["gambar"]; ?>" alt="Item One" />
+                            <img src="../assets/image/<?php echo $row["gambar"]; ?>" alt="Item One" />
                             <div class="card-body-item">
                                 <div class="item-name"><?php echo $row["nama_game"]; ?></div>
                                 <div>
@@ -356,7 +356,7 @@ foreach ($pembelianData as $pembelian) {
             // Handle tombol beli (munculkan modal)
             document.querySelectorAll('.buy-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    modalGameImage.src = '../image/' + this.getAttribute('data-game-image');
+                    modalGameImage.src = '../assets/image/' + this.getAttribute('data-game-image');
                     modalGameName.textContent = this.getAttribute('data-game-name');
                     modalGamePrice.textContent = this.getAttribute('data-game-price');
                     confirmBuyBtn.setAttribute('data-game-id', this.getAttribute('data-game-id'));

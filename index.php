@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gameery</title>
-    <link rel="icon" href="image/logo.png" type="image/png">
+    <link rel="icon" href="assets/icons/logo.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -34,7 +34,7 @@
     <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-tr from-white via-[#f0f5ff] to-[#162f65]">
 
         <h1 class="text-[#0f2043] font-extrabold text-4xl sm:text-5xl mb-2 select-none tracking-tight flex-center">
-            <img src="image/logo2.png" alt="Logo" class="logo">
+            <img src="assets/icon/logo2.png" alt="Logo" class="logo">
             Gameery
         </h1>
         <h2 class="text-gray-700 font-semibold text-lg sm:text-xl mb-8 select-none">

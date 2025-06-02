@@ -34,7 +34,7 @@ ORDER BY p.tanggal_pembelian DESC;;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Penjualan Game - Admin Panel</title>
-    <link rel="icon" href="../image/logo.png" type="image/png">
+    <link rel="icon" href="../assets/icons/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
@@ -101,7 +101,7 @@ ORDER BY p.tanggal_pembelian DESC;;
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
       <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            <img src="../assets/icons/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
             Gameery
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 

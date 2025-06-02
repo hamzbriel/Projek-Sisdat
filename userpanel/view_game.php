@@ -22,7 +22,7 @@ $game_sudah_dibeli = count($cek_game) > 0;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>View Game - User Panel</title>
-    <link rel="icon" href="../image/logo.png" type="image/png">
+    <link rel="icon" href="../assets/icons/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
@@ -71,7 +71,7 @@ $game_sudah_dibeli = count($cek_game) > 0;
         .image-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
         }
 
@@ -175,7 +175,7 @@ $game_sudah_dibeli = count($cek_game) > 0;
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="../image/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            <img src="../assets/icons/logo.png" alt="Logo" class="logo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
             Gameery
         </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
@@ -185,13 +185,13 @@ $game_sudah_dibeli = count($cek_game) > 0;
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
+                        <a class="nav-link" href="index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="game_terjual.php">Game Terjual</a>
+                        <a class="nav-link" href="library_game.php">Library Game</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-danger" href="logout.php">Logout</a>
+                        <a class="btn btn-danger" href="../logout.php">Logout</a>
                     </li>
                 </ul>
             </div>
@@ -205,7 +205,7 @@ $game_sudah_dibeli = count($cek_game) > 0;
         <div class="d-flex align-items-center gap-4 d-flex-row" style="flex-wrap: wrap;">
             <div class="image-container">
                 <img alt="New World Aeternum Season of the Divide game character in dark armor with red glowing accents standing in a misty jungle environment with the game title text on the right"
-                    src="../image/<?= $game["gambar"] ?>" />
+                    src="../assets/image/<?= $game["gambar"] ?>" />
             </div>
             <div class="details-container">
 
@@ -242,7 +242,7 @@ $game_sudah_dibeli = count($cek_game) > 0;
                 class="btn <?= $game_sudah_dibeli ? 'btn-warning btn-download' : 'btn-success btn-buy' ?>"
                 data-game-id="<?= $game['game_id'] ?>"
                 data-game-name="<?= $game['nama_game'] ?>"
-                data-game-image="../image/<?= $game['gambar'] ?>"
+                data-game-image="../assets/image/<?= $game['gambar'] ?>"
                 data-game-price="<?= number_format($game['harga'], 0, ',', '.') ?>"
                 data-game-developer="<?= $developer['nama_developer'] ?>"
                 data-game-genres="<?php
@@ -331,15 +331,37 @@ $game_sudah_dibeli = count($cek_game) > 0;
             });
         });
 
-        // Tambahkan event listener sekali saja di luar, di halaman
+        // Handle the purchase confirmation
         if (btnConfirm) {
             btnConfirm.addEventListener('click', function() {
-                alert('Pembelian game berhasil');
-
-                // Tutup modal
-                var myModalEl = document.getElementById('buyGameModal');
-                var modalInstance = bootstrap.Modal.getInstance(myModalEl);
-                modalInstance.hide();
+                const gameId = document.querySelector('.btn-buy').dataset.gameId; // Get the game ID from the button
+                const userId = <?= $id_user ?>; // Get the user ID from PHP
+                // Send the purchase request
+                fetch('buy_game.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `game_id=${gameId}&user_id=${userId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Pembelian game berhasil');
+                        // Close the modal
+                        var myModalEl = document.getElementById('buyGameModal');
+                        var modalInstance = bootstrap.Modal.getInstance(myModalEl);
+                        modalInstance.hide();
+                        // Optionally, redirect or refresh the page
+                        window.location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses pembelian');
+                });
             });
         }
 
