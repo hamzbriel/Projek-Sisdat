@@ -1,6 +1,6 @@
 # Gameery – Website Toko Game
 
-![Logo Gameery](assets/icons/logo2.png)
+<img src="assets/icons/logo2.png" alt="Logo Gameery" width="200"/>
 
 Proyek ini merupakan bagian dari Praktikum Sistem Database I yang bertujuan untuk membangun sebuah website toko game berbasis web bernama **Gameery**. Website ini mendukung fitur CRUD (Create, Read, Update, Delete) pada data game, dan dirancang untuk menerapkan konsep-konsep sistem database secara praktis.
 
