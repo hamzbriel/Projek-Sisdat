@@ -9,6 +9,9 @@ require '../functions.php';
 $username_user = $_SESSION["usernameUser"];
 $query_nama_user = mysqli_query($con, "SELECT * FROM users WHERE username='$username_user'");
 $dataUser = mysqli_fetch_array($query_nama_user);
+$idUser = $dataUser["user_id"];
+
+// echo $idUser;
 
 // Ambil semua genre yang tersedia untuk filter
 $genres = Query("SELECT DISTINCT genre FROM genres");
@@ -17,18 +20,27 @@ $genres = Query("SELECT DISTINCT genre FROM genres");
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $genre_filter = isset($_GET['genre']) ? $_GET['genre'] : '';
 
-// Query untuk mengambil game yang sudah dibeli
-$query = "SELECT g.* FROM games g 
-          JOIN pembelian p ON g.game_id = p.game_id
-          WHERE p.user_id = '$dataUser[user_id]'";
+// var_dump($genre_filter);
 
+// Query untuk mengambil game yang sudah dibeli
+// Query untuk mengambil game yang sudah dibeli
+$query = "SELECT DISTINCT g.* FROM games g 
+          JOIN pembelian p ON g.game_id = p.game_id";
+
+// Tambahkan JOIN untuk genres jika ada filter genre
 if (!empty($genre_filter)) {
     $query .= " JOIN genres gr ON g.game_id = gr.game_id";
 }
 
+// Mulai WHERE clause
+$query .= " WHERE p.user_id = '$idUser'";
+
+// Tambahkan kondisi pencarian
 if (!empty($search)) {
     $query .= " AND g.nama_game LIKE '%$search%'";
 }
+
+// Tambahkan kondisi filter genre
 if (!empty($genre_filter)) {
     $query .= " AND gr.genre = '$genre_filter'";
 }
