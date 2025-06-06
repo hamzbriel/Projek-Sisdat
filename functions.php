@@ -71,7 +71,7 @@ function Tambah($data, $data_session)
 
 function Upload() {
     // Check if image directory exists, if not create it
-    $uploadDir = 'image/';
+    $uploadDir = '../assets/image/';
     if (!file_exists($uploadDir)) {
         mkdir($uploadDir, 0777, true);
     }

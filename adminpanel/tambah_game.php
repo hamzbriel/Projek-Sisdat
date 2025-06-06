@@ -232,7 +232,8 @@ if(isset($_POST["submit"])){
 
             <div class="mb-3">
                 <label for="productImage" class="form-label">Input Gambar</label>
-                <input class="form-control" type="file" id="productImage" name="productImage" accept="../assets/image/*" required />
+                <!-- <input type="file" id="productImage" name="productImage" accept="image/*" required /> -->
+                <input class="form-control" type="file" id="productImage" name="productImage" accept="image/*" required />
                 <img id="imagePreview" alt="Preview Gambar" />
             </div>
 

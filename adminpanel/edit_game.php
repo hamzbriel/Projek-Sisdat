@@ -232,8 +232,8 @@ if(isset($_POST["submit"])){
 
             <div class="mb-3">
                 <label for="productImage" class="form-label">Input Gambar</label>
-                <input class="form-control" type="file" id="productImage" name="productImage" accept="../assets/image/*" required />
-                <img id="imagePreview" alt="Preview Gambar" src="image/<?= $game['gambar']; ?>" style="display: <?= $game['gambar'] ? 'block' : 'none'; ?>;" />
+                <input class="form-control" type="file" id="productImage" name="productImage" accept="image/*" required />
+                <img id="imagePreview" alt="Preview Gambar" src="../assets/image/<?= $game['gambar']; ?>" style="display: <?= $game['gambar'] ? 'block' : 'none'; ?>;" />
             </div>
 
             <div class="btn-group-flex">

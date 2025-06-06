@@ -238,7 +238,7 @@ foreach($list_game_terbeli as $list){
             <?php foreach ($games as $row) : ?>
                 <div class="col-md-4 col-sm-6">
                     <div class="card-item">
-                        <img src="image/<?php echo $row["gambar"]; ?>" alt="Item One" />
+                        <img src="../assets/image/<?php echo $row["gambar"]; ?>" alt="Item One" />
                         <div class="card-body-item">
                             <div class="item-name"><?php echo $row["nama_game"]; ?></div>
                             <div>

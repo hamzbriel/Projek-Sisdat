@@ -198,7 +198,7 @@ foreach($list_game_terbeli as $list){
         <div class="d-flex align-items-center gap-4 d-flex-row" style="flex-wrap: wrap;">
             <div class="image-container">
                 <img alt="New World Aeternum Season of the Divide game character in dark armor with red glowing accents standing in a misty jungle environment with the game title text on the right"
-                    src="image/<?=$game["gambar"]?>" />
+                    src="../assets/image/<?=$game["gambar"]?>" />
             </div>
             <div class="details-container">
                 

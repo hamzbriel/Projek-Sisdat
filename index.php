@@ -34,7 +34,7 @@
     <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-tr from-white via-[#f0f5ff] to-[#162f65]">
 
         <h1 class="text-[#0f2043] font-extrabold text-4xl sm:text-5xl mb-2 select-none tracking-tight flex-center">
-            <img src="assets/icon/logo2.png" alt="Logo" class="logo">
+            <img src="assets/icons/logo2.png" alt="Logo" class="logo">
             Gameery
         </h1>
         <h2 class="text-gray-700 font-semibold text-lg sm:text-xl mb-8 select-none">
