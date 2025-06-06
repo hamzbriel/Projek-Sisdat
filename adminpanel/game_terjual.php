@@ -1,5 +1,9 @@
 <?php 
 session_start();
+if (!isset($_SESSION['usernameAdmin'])) {
+    header("Location: ../login.php");
+    exit;
+}
 // var_dump($_SESSION);
 require '../functions.php';
 $username_developer = $_SESSION["usernameAdmin"];

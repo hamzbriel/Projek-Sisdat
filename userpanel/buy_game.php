@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['usernameUser'])) {
+    header("Location: ../login.php");
+    exit;
+}
 require '../functions.php';
 
 if (!isset($_SESSION['usernameUser'])) {

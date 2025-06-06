@@ -1,6 +1,10 @@
 <?php
 session_start();
 // var_dump($_SESSION);
+if (!isset($_SESSION['usernameAdmin'])) {
+    header("Location: ../login.php");
+    exit;
+}
 
 require '../functions.php';
 
