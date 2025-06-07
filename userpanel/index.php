@@ -13,11 +13,13 @@ $dataUser = mysqli_fetch_array($query_nama_user);
 // Ambil semua genre yang tersedia untuk filter
 $genres = Query("SELECT DISTINCT genre FROM genres");
 
-// Handle search dan filter
+// Handle search, filter, dan sorting
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $genre_filter = isset($_GET['genre']) ? $_GET['genre'] : '';
+$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'nama_game';
+$sort_order = isset($_GET['sort_order']) ? $_GET['sort_order'] : 'ASC';
 
-// Query dengan filter
+// Query dengan filter dan sorting
 $query = "SELECT * FROM games ";
 if (!empty($genre_filter)) {
     $query .= " JOIN genres ON games.game_id = genres.game_id";
@@ -29,6 +31,16 @@ if (!empty($search)) {
 }
 if (!empty($genre_filter)) {
     $query .= " AND genres.genre = '$genre_filter'";
+}
+
+// Tambahkan sorting
+$valid_sort_columns = ['nama_game', 'harga'];
+$valid_sort_orders = ['ASC', 'DESC'];
+
+if (in_array($sort_by, $valid_sort_columns) && in_array($sort_order, $valid_sort_orders)) {
+    $query .= " ORDER BY games.$sort_by $sort_order";
+} else {
+    $query .= " ORDER BY games.nama_game ASC"; // default sorting
 }
 
 $games = Query($query);
@@ -164,10 +176,12 @@ foreach ($pembelianData as $pembelian) {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .search-input {
             flex-grow: 1;
+            min-width: 200px;
             padding: 10px 15px;
             border-radius: 25px;
             border: 1px solid #ced4da;
@@ -180,6 +194,7 @@ foreach ($pembelianData as $pembelian) {
             border: 1px solid #ced4da;
             background-color: white;
             cursor: pointer;
+            min-width: 120px;
         }
 
         .search-button {
@@ -196,11 +211,43 @@ foreach ($pembelianData as $pembelian) {
             background-color: #1a3a7a;
         }
 
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .game-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
         .action-buttons {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+            }
+            .search-input {
+                min-width: auto;
+            }
+            .sort-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
         }
     </style>
 </head>
@@ -237,10 +284,11 @@ foreach ($pembelianData as $pembelian) {
             <h2 class="welcome-text">Welcome <?php echo $dataUser['nama_pengguna']; ?>! </h2>
         </div>
 
-        <!-- Search dan Filter Section -->
+        <!-- Search, Filter, dan Sort Section -->
         <form method="GET" action="">
             <div class="search-container">
                 <input type="text" name="search" class="search-input" placeholder="Search game..." value="<?php echo htmlspecialchars($search); ?>" autocomplete="off">
+                
                 <select name="genre" class="filter-select">
                     <option value="">All Genres</option>
                     <?php foreach ($genres as $genre): ?>
@@ -249,7 +297,22 @@ foreach ($pembelianData as $pembelian) {
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit" class="search-button">Search</button>
+
+                <div class="sort-controls">
+                    <select name="sort_by" class="filter-select">
+                        <option value="nama_game" <?php echo ($sort_by == 'nama_game') ? 'selected' : ''; ?>>Sort by Name</option>
+                        <option value="harga" <?php echo ($sort_by == 'harga') ? 'selected' : ''; ?>>Sort by Price</option>
+                    </select>
+                    
+                    <select name="sort_order" class="filter-select">
+                        <option value="ASC" <?php echo ($sort_order == 'ASC') ? 'selected' : ''; ?>>Ascending</option>
+                        <option value="DESC" <?php echo ($sort_order == 'DESC') ? 'selected' : ''; ?>>Descending</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
             </div>
         </form>
 
@@ -265,7 +328,12 @@ foreach ($pembelianData as $pembelian) {
                         <div class="card-item">
                             <img src="../assets/image/<?php echo $row["gambar"]; ?>" alt="Item One" />
                             <div class="card-body-item">
-                                <div class="item-name"><?php echo $row["nama_game"]; ?></div>
+                                <div class="card-details">
+                                    <div class="item-name"><?php echo $row["nama_game"]; ?></div>
+                                    <?php if(isset($row["harga"])): ?>
+                                        <div class="game-price">Rp <?php echo number_format($row["harga"], 0, ',', '.'); ?></div>
+                                    <?php endif; ?>
+                                </div>
                                 <div>
                                     <a href="view_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-primary btn-sm btn-action"><i class="fas fa-eye"></i></a>
                                     <?php if (in_array($row['game_id'], $game_dibeli)): ?>

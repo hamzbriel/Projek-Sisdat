@@ -10,9 +10,11 @@ require '../functions.php';
 
 // Ambil semua genre yang tersedia untuk filter
 $genres = Query("SELECT DISTINCT genre FROM genres");
-// Handle search dan filter
+// Handle search, filter, dan sorting
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $genre_filter = isset($_GET['genre']) ? $_GET['genre'] : '';
+$sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'nama_game';
+$sort_order = isset($_GET['sort_order']) ? $_GET['sort_order'] : 'ASC';
 
 // menghapus game
 if (isset($_POST['game_id'])) {
@@ -35,6 +37,16 @@ if (!empty($search)) {
 }
 if (!empty($genre_filter)) {
     $query .= " AND games.game_id IN (SELECT game_id FROM genres WHERE genre = '$genre_filter')";
+}
+
+// Tambahkan sorting
+$valid_sort_columns = ['nama_game', 'harga'];
+$valid_sort_orders = ['ASC', 'DESC'];
+
+if (in_array($sort_by, $valid_sort_columns) && in_array($sort_order, $valid_sort_orders)) {
+    $query .= " ORDER BY games.$sort_by $sort_order";
+} else {
+    $query .= " ORDER BY games.nama_game ASC"; // default sorting
 }
 
 $games = Query($query);
@@ -153,9 +165,11 @@ foreach($list_game_terbeli as $list){
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .search-input {
             flex-grow: 1;
+            min-width: 200px;
             padding: 10px 15px;
             border-radius: 25px;
             border: 1px solid #ced4da;
@@ -167,6 +181,7 @@ foreach($list_game_terbeli as $list){
             border: 1px solid #ced4da;
             background-color: white;
             cursor: pointer;
+            min-width: 120px;
         }
         .search-button {
             padding: 10px 20px;
@@ -179,6 +194,34 @@ foreach($list_game_terbeli as $list){
         }
         .search-button:hover {
             background-color: #1a3a7a;
+        }
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .game-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+            }
+            .search-input {
+                min-width: auto;
+            }
+            .sort-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
         }
     </style>
 </head>
@@ -215,10 +258,11 @@ foreach($list_game_terbeli as $list){
             <a href="tambah_game.php" class="btn btn-add">Tambah Data</a>
         </div>
 
-        <!-- Search dan Filter Section -->
+        <!-- Search, Filter, dan Sort Section -->
         <form method="GET" action="">
             <div class="search-container">
                 <input type="text" name="search" class="search-input" placeholder="Search game..." value="<?php echo htmlspecialchars($search); ?>" autocomplete="off">
+                
                 <select name="genre" class="filter-select">
                     <option value="">All Genres</option>
                     <?php foreach ($genres as $genre): ?>
@@ -227,7 +271,22 @@ foreach($list_game_terbeli as $list){
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit" class="search-button">Search</button>
+
+                <div class="sort-controls">
+                    <select name="sort_by" class="filter-select">
+                        <option value="nama_game" <?php echo ($sort_by == 'nama_game') ? 'selected' : ''; ?>>Sort by Name</option>
+                        <option value="harga" <?php echo ($sort_by == 'harga') ? 'selected' : ''; ?>>Sort by Price</option>
+                    </select>
+                    
+                    <select name="sort_order" class="filter-select">
+                        <option value="ASC" <?php echo ($sort_order == 'ASC') ? 'selected' : ''; ?>>Ascending</option>
+                        <option value="DESC" <?php echo ($sort_order == 'DESC') ? 'selected' : ''; ?>>Descending</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
             </div>
         </form>
 
@@ -242,9 +301,14 @@ foreach($list_game_terbeli as $list){
             <?php foreach ($games as $row) : ?>
                 <div class="col-md-4 col-sm-6">
                     <div class="card-item">
-                        <img src="../assets/image/<?php echo $row["gambar"]; ?>" alt="Item One" />
+                        <img src="../assets/image/<?php echo $row["gambar"]; ?>" alt="<?php echo htmlspecialchars($row["nama_game"]); ?>" />
                         <div class="card-body-item">
-                            <div class="item-name"><?php echo $row["nama_game"]; ?></div>
+                            <div class="card-details">
+                                <div class="item-name"><?php echo htmlspecialchars($row["nama_game"]); ?></div>
+                                <?php if(isset($row["harga"])): ?>
+                                    <div class="game-price">Rp <?php echo number_format($row["harga"], 0, ',', '.'); ?></div>
+                                <?php endif; ?>
+                            </div>
                             <div>
                                 <a href="view_game.php?id=<?php echo $row['game_id']; ?>" class="btn btn-outline-primary btn-sm btn-action" title="View">
                                     <i class="fas fa-eye"></i>
@@ -273,10 +337,9 @@ foreach($list_game_terbeli as $list){
                 </div>
             <?php endforeach; ?>
             <?php endif; ?>
-            <!-- Item 1 -->
-            
         </div>
     </div>
+    
     <!-- Delete Confirmation Modal (untuk game yang bisa dihapus) -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -304,7 +367,7 @@ foreach($list_game_terbeli as $list){
         </div>
     </div>
 
-    <!-- Delete  (untuk game yang tidak bisa dihapus) -->
+    <!-- Delete Modal (untuk game yang tidak bisa dihapus) -->
       <div class="modal fade" id="deleteModal2" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -328,53 +391,28 @@ foreach($list_game_terbeli as $list){
     </div>
 
     <script>
-        
-        // Initialize the modal with game data when delete button is clicked
-        //#1
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     var deleteModal = document.getElementById('deleteModal');
-        //     deleteModal.addEventListener('show.bs.modal', function(event) {
-        //         var button = event.relatedTarget; // Button that triggered the modal
-        //         var gameId = button.getAttribute('data-game-id');
-        //         var gameName = button.getAttribute('data-game-name');
-                
-        //         // Update the modal content
-        //         document.getElementById('gameNameToDelete').textContent = gameName;
-                
-        //         // Set the delete link with the correct ID
-        //         var deleteButton = document.getElementById('confirmDeleteButton');
-        //         deleteButton.href = 'hapus_game.php?id=' + gameId;
-        //     });
-        // });
-
-        //#2
         document.addEventListener('DOMContentLoaded', function() {
             var deleteModal = document.getElementById('deleteModal');
             deleteModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget; // Button that triggered the modal
+                var button = event.relatedTarget;
                 var gameId = button.getAttribute('data-game-id');
                 var gameName = button.getAttribute('data-game-name');
-        // &nbsp;
-        // &nbsp;
-                // Update the modal content
+
                 document.getElementById('gameNameToDelete').textContent = gameName;
-                document.getElementById('gameIdToDelete').value = gameId; // Set the hidden input value
+                document.getElementById('gameIdToDelete').value = gameId;
             });
         })
 
         document.addEventListener('DOMContentLoaded', function() {
-                    var deleteModal = document.getElementById('deleteModal2');
-                    deleteModal.addEventListener('show.bs.modal', function(event) {
-                        var button = event.relatedTarget; // Button that triggered the modal
-                        var gameId = button.getAttribute('data-game-id');
-                        var gameName = button.getAttribute('data-game-name');
-                
-                        // Update the modal content
-                        document.getElementById('gameNameToDelete2').textContent = gameName;
+            var deleteModal = document.getElementById('deleteModal2');
+            deleteModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var gameId = button.getAttribute('data-game-id');
+                var gameName = button.getAttribute('data-game-name');
+        
+                document.getElementById('gameNameToDelete2').textContent = gameName;
             });
         })
-
-
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
