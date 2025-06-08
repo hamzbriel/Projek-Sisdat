@@ -24,7 +24,7 @@ CREATE TABLE games(
     game_id INT NOT NULL AUTO_INCREMENT,
     nama_game VARCHAR(250) NOT NULL,
     harga INT NOT NULL,
-    deskripsi VARCHAR(250),
+    deskripsi text,
     developer_id INT not null,
     gambar VARCHAR(250),
     foreign key(developer_id) REFERENCES developers(developer_id),
