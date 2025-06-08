@@ -41,7 +41,8 @@ Industri game yang terus berkembang menuntut sistem informasi yang efisien dalam
 ---
 
 ## D. ERD dan Tabel Relasi
-*(Disarankan untuk menyisipkan gambar ERD dan tabel relasi jika tersedia di direktori proyek.)*
+<img src="assets/image/erd.png" alt="ERD"/>
+<img src="assets/image/tabel.png" alt="Tabel"/>
 
 ---
 
