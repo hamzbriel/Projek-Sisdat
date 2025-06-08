@@ -222,7 +222,7 @@ if(isset($_POST["submit"])){
 
             <div class="mb-3">
                 <label for="price" class="form-label">Harga (Rp)</label>
-                <input type="number" class="form-control" id="price" name="price" min="0" step="1000" value="<?= $game["harga"];?>"
+                <input type="number" class="form-control" id="price" name="price" min="0" value="<?= $game["harga"];?>"
                     placeholder="Masukkan harga" required />
                 <div class="invalid-feedback">Harga wajib diisi dan harus berupa angka 0 atau lebih.</div>
             </div>
