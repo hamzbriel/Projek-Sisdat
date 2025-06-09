@@ -6,26 +6,19 @@ if (!isset($_SESSION['usernameAdmin'])) {
 }
 require '../functions.php';
 
+$submissionResult = null;
 if(isset($_POST["submit"])){
-    // untuk debug
-    // var_dump($_POST);
-    // var_dump($_FILES); die;
-
     // cek apakah data berhasil ditambahkan atau tidak 
     if(Tambah($_POST, $_SESSION)>0){// ngejalanin function + cek
-        echo "
-            <script>
-                alert('data berhasil ditambahkan');
-                document.location.href = 'index.php';
-            </script>
-        ";
+        $submissionResult = [
+            'success' => true,
+            'message' => 'Data berhasil ditambahkan.'
+        ];
     }else{
-        echo "
-            <script>
-                alert('data gagal ditambahkan');
-                document.location.href = 'index.php';
-            </script>
-        ";
+        $submissionResult = [
+            'success' => false,
+            'message' => 'Data gagal ditambahkan.'
+        ];
     }
 }
 
@@ -49,7 +42,6 @@ if(isset($_POST["submit"])){
         }
 
         .form-container {
-            /* Slightly darker, semi-transparent gradient background */
             background: linear-gradient(135deg, rgba(10, 25, 55, 0.9) 0%, rgba(90, 110, 150, 0.2) 100%);
             padding: 2rem;
             border-radius: 1rem;
@@ -61,7 +53,7 @@ if(isset($_POST["submit"])){
         }
 
         h2.form-title {
-            color: #fff; /* changed to white */
+            color: #fff; 
             font-weight: 700;
             text-transform: uppercase;
             margin-bottom: 1.5rem;
@@ -71,7 +63,7 @@ if(isset($_POST["submit"])){
         }
 
         label.form-label {
-            color: #e7e6dd; /* Off-white */
+            color: #e7e6dd;
             font-weight: 600;
         }
 
@@ -79,16 +71,16 @@ if(isset($_POST["submit"])){
         .form-check-input,
         .form-select,
         textarea.form-control {
-            background-color: rgba(10, 25, 55, 0.7); /* darker translucent blue */
+            background-color: rgba(10, 25, 55, 0.7);
             border: 1px solid transparent;
-            color: #e7e6dd; /* Off-white */
+            color: #e7e6dd;
             transition: border-color 0.3s ease;
             backdrop-filter: blur(6px);
         }
 
         .form-control::placeholder,
         textarea.form-control::placeholder {
-            color: #e7e6ddcc; /* Slightly transparent off-white */
+            color: #e7e6ddcc;
         }
 
         .form-control:focus,
@@ -99,15 +91,14 @@ if(isset($_POST["submit"])){
         .form-check-input:hover,
         .form-select:hover,
         textarea.form-control:hover {
-            background-color: rgba(51, 97, 172, 0.8); /* lighter translucent blue */
-            border: 1px solid #fff !important; /* White border on hover/focus */
+            background-color: rgba(51, 97, 172, 0.8);
+            border: 1px solid #fff !important;
             box-shadow: 0 0 8px #ffffff !important;
-            color: #e7e6dd; /* Off-white */
+            color: #e7e6dd;
             outline: none;
             backdrop-filter: blur(6px);
         }
 
-        /* Genres labels white */
         .form-check-label {
             color: #fff !important;
             font-weight: 500;
@@ -132,7 +123,6 @@ if(isset($_POST["submit"])){
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Submit button with Bootstrap success color */
         .btn-submit {
             font-weight: 600;
             transition: background-color 0.3s ease, color 0.3s ease;
@@ -176,6 +166,89 @@ if(isset($_POST["submit"])){
         textarea.form-control {
             min-height: 100px;
             resize: vertical;
+        }
+
+        /* Modal overlay for purchase feedback */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(22, 47, 101, 0.6); /* Use a transparent dark blue overlay */
+            backdrop-filter: blur(6px); /* subtle blur for glass effect */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Transparent glass-style modal content */
+        .modal-content {
+            background: rgba(255 255 255 / 0.15); /* translucent white */
+            color: #e7e6dd; /* off-white text */
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); /* stronger shadow for contrast */
+            max-width: 420px;
+            width: 90%;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            user-select: none;
+            backdrop-filter: blur(12px) saturate(150%);
+        }
+
+        /* Adjust modal title and message colors to lighter for better contrast */
+        .modal-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: #f0f5ff; /* light blue-white */
+        }
+
+        .modal-message {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            color: #d0d4de; /* lighter off-white */
+        }
+
+        /* Adjust icons colors to brighter shades */
+        .icon-success {
+            color: #22c55e; /* green-500 */
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .icon-failure {
+            color: #ef4444; /* red-500 */
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal button style with semi-transparent background */
+        .modal-button {
+            background-color: rgba(37, 99, 235, 0.8);
+            color: white;
+            padding: 0.7rem 2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.25s ease;
+        }
+
+        .modal-button:hover,
+        .modal-button:focus {
+            background-color: rgba(30, 64, 175, 0.9);
+            outline: none;
         }
 
     </style>
@@ -231,7 +304,6 @@ if(isset($_POST["submit"])){
 
             <div class="mb-3">
                 <label for="productImage" class="form-label">Input Gambar</label>
-                <!-- <input type="file" id="productImage" name="productImage" accept="image/*" required /> -->
                 <input class="form-control" type="file" id="productImage" name="productImage" accept="image/*" required />
                 <img id="imagePreview" alt="Preview Gambar" />
             </div>
@@ -242,6 +314,22 @@ if(isset($_POST["submit"])){
             </div>
         </form>
     </div>
+
+    <?php if ($submissionResult !== null) : ?>
+    <div id="submissionModal" class="modal-overlay active" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription">
+        <div class="modal-content">
+            <?php if ($submissionResult['success']) : ?>
+                <div class="icon-success" aria-hidden="true">&#10003;</div>
+                <h2 id="modalTitle" class="modal-title">Sukses</h2>
+            <?php else : ?>
+                <div class="icon-failure" aria-hidden="true">&#10007;</div>
+                <h2 id="modalTitle" class="modal-title">Gagal</h2>
+            <?php endif; ?>
+            <p id="modalDescription" class="modal-message"><?= htmlspecialchars($submissionResult['message']) ?></p>
+            <button id="modalCloseBtn" class="modal-button" type="button">Tutup</button>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -266,8 +354,7 @@ if(isset($_POST["submit"])){
         });
 
         cancelButton.addEventListener('click', () => {
-            // Redirect to another tab/page when cancel is clicked
-            window.location.href = 'index.php'; // Change this URL to your desired page
+            window.location.href = 'index.php'; // Redirect on cancel
         });
 
         form.addEventListener('submit', (event) => {
@@ -276,23 +363,32 @@ if(isset($_POST["submit"])){
             const genreError = document.getElementById('genreError');
 
             if (genreCheckboxes.length === 0) {
-                event.preventDefault(); // Mencegah form dikirim
+                event.preventDefault();
 
-                // Tampilkan peringatan
                 genreError.classList.remove('d-none');
                 genreError.classList.add('d-block');
 
-                // Tambahkan class is-invalid ke semua checkbox
                 allGenreInputs.forEach(cb => cb.classList.add('is-invalid'));
             } else {
-                // Sembunyikan peringatan
                 genreError.classList.remove('d-block');
                 genreError.classList.add('d-none');
 
-                // Hapus class is-invalid
                 allGenreInputs.forEach(cb => cb.classList.remove('is-invalid'));
             }
         });
+
+        // Modal close logic and redirect
+        const modal = document.getElementById('submissionModal');
+        if (modal) {
+            const closeBtn = document.getElementById('modalCloseBtn');
+            closeBtn.addEventListener('click', () => {
+                window.location.href = 'index.php';
+            });
+            // Optional: auto redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'index.php';
+            }, 3500);
+        }
     </script>
 </body>
 
