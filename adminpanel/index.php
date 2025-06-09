@@ -344,7 +344,11 @@ foreach($list_game_terbeli as $list){
                             <div class="card-details">
                                 <div class="item-name"><?php echo htmlspecialchars($row["nama_game"]); ?></div>
                                 <?php if(isset($row["harga"])): ?>
-                                    <div class="game-price">Rp <?php echo number_format($row["harga"], 0, ',', '.'); ?></div>
+                                    <?php if($row["harga"] != 0): ?>
+                                        <div class="game-price">Rp <?php echo number_format($row["harga"], 0, ',', '.'); ?></div>
+                                    <?php else: ?>
+                                        <div class="game-price">Free</div>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                             <div class="action-buttons">

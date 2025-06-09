@@ -424,7 +424,11 @@ $game_sudah_dibeli = count($cek_game) > 0;
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">Harga</div>
-                                <div class="detail-value price-value">Rp<?php echo number_format($game["harga"], 0, ',', '.') ?></div>
+                                <?php if($game["harga"] != 0): ?>
+                                        <div class="detail-value price-value">Rp<?php echo number_format($game["harga"], 0, ',', '.') ?></div>
+                                <?php else: ?>
+                                        <div class="detail-value price-value">Free</div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
