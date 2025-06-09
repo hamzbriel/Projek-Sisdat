@@ -201,14 +201,17 @@ $game_sudah_dibeli = count($cek_game) > 0;
             color: #162f65;
             font-weight: 600;
             transition: all 0.3s ease;
+            gap: 0.5rem !important;
         }
         .social-item:hover {
             background: rgba(22, 47, 101, 0.2);
             transform: translateY(-2px);
         }
         .social-item i {
-            margin-right: 0.5rem;
+            margin-right: 0 !important;
             font-size: 1.1rem;
+            width: auto;
+            flex-shrink: 0;
         }
 
         /* Description Section */
