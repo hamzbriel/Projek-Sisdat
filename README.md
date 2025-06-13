@@ -92,13 +92,13 @@ User journey dimulai dari login, melihat daftar game, melakukan pembelian, hingg
 [gameery.infy.uk](https://gameery.infy.uk/)
 - **Akun Tester**
   - **Developer Login:**
-    nama_developer: Developer Tester
-    username: devtest
-    password: 123
+    - nama_developer: Developer Tester
+    - username: devtest
+    - password: 123
   - **User Login:**
-    nama_pengguna: User Tester
-    username: usertest
-    password: 123
+    - nama_pengguna: User Tester
+    - username: usertest
+    - password: 123
 
 ---
 
