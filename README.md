@@ -58,6 +58,7 @@ Industri game yang terus berkembang menuntut sistem informasi yang efisien dalam
 
 ## F. Flow Pemakaian Aplikasi
 User journey dimulai dari login, melihat daftar game, melakukan pembelian, hingga mengelola data game sebagai admin (CRUD). Prototipe telah mencerminkan alur penggunaan aplikasi ini.
+<img src="assets/image/flow.png" alt="Flow"/>
 
 ---
 
@@ -84,6 +85,20 @@ User journey dimulai dari login, melihat daftar game, melakukan pembelian, hingg
 - **Visual Studio Code** – Text Editor
 - **Figma** – Desain UI
 - **GitHub** – Kolaborasi & version control
+
+---
+
+### Link Hosting:
+[gameery.infy.uk](https://gameery.infy.uk/)
+- **Akun Tester**
+  - **Developer Login:**
+    nama_developer: Developer Tester
+    username: devtest
+    password: 123
+  - **User Login:**
+    nama_pengguna: User Tester
+    username: usertest
+    password: 123
 
 ---
 
